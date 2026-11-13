@@ -1,0 +1,73 @@
+{% extends 'layouts/base_limpa.html'%}
+
+{% block titulo %}Tem de Tudo - Instrumentos{% endblock %}
+
+{% block estilos %}
+  <style>
+    .hero {
+      background: linear-gradient(135deg, #201f1f, #e8e9e9);
+      color: white;
+      padding: 80px 0;
+      text-align: center;
+    }
+    .card:hover {
+      color: #8e8f8f;
+    }
+  </style>
+{% endblock %}
+
+{% block conteudo %}
+ <body>
+
+  <section class="hero">
+    <div class="container">
+      <h1 class="display-4 fw-bold">TEM DE TUDO</h1>
+      <p class="lead">
+        Instrumentos, periféricos, equipamentos, discos e muito mais.
+      </p>
+      <a href="cadastros.html" class="btn btn-light btn-lg mt-3">
+        <i class="bi bi-play-fill"></i> Crie sua conta agora!
+      </a>
+    </div>
+  </section>
+
+  <section class="py-5">
+    <div class="container text-center">
+      <h2 class="mb-4 fw-bold">Nossa Loja</h2>
+      <p class="text-muted mb-5">Explore todos os setores da loja.</p>
+      <div class="row g-4">
+        
+        <div class="col-md-4">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <i class="bi bi-soundwave display-4 mb-3"></i>
+              <h5 class="card-title">Instrumentos</h5>
+              <p class="card-text text-muted">Encontre instrumentos de cordas, sopro, teclas e muito mais.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <i class="bi bi-speaker-fill display-4 mb-3"></i>
+              <h5 class="card-title">Acessórios</h5>
+              <p class="card-text text-muted">Cabos, amplificadores, pedaleiras, fones de ouvido e mais.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card shadow-sm h-100">
+            <div class="card-body">
+              <i class="bi bi-record-circle-fill display-4 mb-3"></i>
+              <h5 class="card-title">Discos</h5>
+              <p class="card-text text-muted">Discos antigos em vinil, para quem valoriza a qualidade do áudio.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+ </body>
+{% endblock %}
