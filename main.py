@@ -155,6 +155,42 @@ def editar_perfil(id_perfil):
     return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
                            nome=nome, descricao=descricao)
 
+@app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
+def excluir_perfil(id_perfil):
+    # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
+    perfil = execute_one(
+        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
+        (id_perfil,),
+    )
+
+    # Código que não existe: mostra a página 404
+    if perfil is None:
+        abort(404)
+
+    # Conta os usuários do perfil: um perfil em uso não pode ser excluído
+    usuarios = execute_one(
+        'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
+        (id_perfil,),
+    )
+
+    if usuarios['total'] > 0:
+        flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
+        return redirect(url_for('listar_perfis'))
+
+    try:
+        # O WHERE garante que só este perfil seja excluído
+        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
+        flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
+
+    # Trata concorrência (um usuário cadastrado no perfil entre a contagem e o DELETE)
+    except Error as erro:
+        if erro.errno == 1451:
+            flash(f'O perfil "{perfil["nome"]}" está em uso e não pode ser excluído.', 'danger')
+        else:
+            raise
+
+    return redirect(url_for('listar_perfis'))
+
 @app.errorhandler(404)
 def pagina_nao_encontrada(erro):
     return render_template('404.html'), 404
