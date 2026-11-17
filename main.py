@@ -143,9 +143,6 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
 
     # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
@@ -163,10 +160,7 @@ def dashboard():
 # ==============================================================================
 
 @app.route('/perfis')
-def listar_perfis():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
+def perfil_lista():
 
     # Busca a lista de perfis na tabela do banco
     perfis = execute_query(
@@ -179,9 +173,7 @@ def listar_perfis():
 
 @app.route('/perfis/inserir', methods=['GET', 'POST'])
 def inserir_perfil():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
+
 
     # Inicializa variáveis para cada campo do formulário
     nome = ''
@@ -233,9 +225,7 @@ def inserir_perfil():
 
 @app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
 def editar_perfil(id_perfil):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
+
 
     # Busca o perfil pelo código que veio no endereço
     perfil = execute_one(
@@ -296,9 +286,7 @@ def editar_perfil(id_perfil):
 
 @app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
 def excluir_perfil(id_perfil):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
+
 
     # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
     perfil = execute_one(
@@ -340,10 +328,7 @@ def excluir_perfil(id_perfil):
 # ==============================================================================
 
 @app.route('/usuarios')
-def listar_usuarios():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
+def usuario_lista():
 
     # O SELECT_USUARIO já traz o nome do perfil, pelo JOIN
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
@@ -353,9 +338,6 @@ def listar_usuarios():
 
 @app.route('/usuarios/inserir', methods=['GET', 'POST'])
 def inserir_usuario():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
 
     # Com muitos campos, o formulário inteiro fica em um dicionário (vazio no GET)
     dados = {}
@@ -427,9 +409,7 @@ def inserir_usuario():
 
 @app.route('/usuarios/<int:id_usuario>')
 def detalhar_usuario(id_usuario):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
+
 
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
@@ -441,9 +421,6 @@ def detalhar_usuario(id_usuario):
 
 @app.route('/usuarios/<int:id_usuario>/editar', methods=['GET', 'POST'])
 def editar_usuario(id_usuario):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
 
     usuario = execute_one(SELECT_USUARIO + ' WHERE u.id_usuario = %s', (id_usuario,))
 
@@ -536,9 +513,6 @@ def editar_usuario(id_usuario):
 
 @app.route('/usuarios/<int:id_usuario>/excluir', methods=['POST'])
 def excluir_usuario(id_usuario):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
 
     # Quem está logado não pode excluir a si mesmo
     if id_usuario == session['id_usuario']:
@@ -565,10 +539,8 @@ def excluir_usuario(id_usuario):
 # ==============================================================================
 
 @app.route('/produtos')
-def listar_produtos():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
+def produtos_lista():
+
 
     produtos = execute_query(SELECT_PRODUTO + ' ORDER BY nome', fetch=True)
 
@@ -595,9 +567,6 @@ def apagar_foto(caminho):
 
 @app.route('/produtos/inserir', methods=['GET', 'POST'])
 def inserir_produto():
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
 
     # No GET, o formulário abre com o estoque em 0 e o produto ativo
     dados = {'estoque': 0, 'ativo': 1}
@@ -656,9 +625,7 @@ def inserir_produto():
 
 @app.route('/produtos/<int:id_produto>/editar', methods=['GET', 'POST'])
 def editar_produto(id_produto):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
+
 
     produto = execute_one(SELECT_PRODUTO + ' WHERE id_produto = %s', (id_produto,))
 
@@ -742,9 +709,6 @@ def editar_produto(id_produto):
 
 @app.route('/produtos/<int:id_produto>/excluir', methods=['POST'])
 def excluir_produto(id_produto):
-    if 'id_usuario' not in session:
-        flash('Entre para continuar.', 'warning')
-        return redirect(url_for('login'))
 
     produto = execute_one(
         'SELECT id_produto, nome, foto FROM produtos WHERE id_produto = %s',
