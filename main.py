@@ -130,7 +130,7 @@ def login():
         # A mesma mensagem para e-mail inexistente e senha errada
         flash('E-mail ou senha incorretos.', 'danger')
 
-    return render_template('login.html', email='')
+    return render_template('login.html', email=email)
 
 
 @app.route('/logout', methods=['POST'])
