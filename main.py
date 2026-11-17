@@ -1,198 +1,4 @@
 import os
-
-from flask import Flask, abort, flash, redirect, render_template, request, url_for
-from flask_wtf.csrf import CSRFProtect
-from mysql.connector import Error
-
-from db import execute_insert, execute_one, execute_query
-from dotenv import load_dotenv
-from validacoes.validacoes_perfil import validar_perfil
-
-from db import execute_one, execute_query
-
-load_dotenv()
-
-app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY')
-CSRFProtect(app)
-
-@app.route('/', methods=['GET', 'POST'])
-def inicial ():
-    return render_template ('usuarios/dashboard.html')
-
-@app.route('/dashboard', methods=['GET', 'POST'])
-def dashboard ():
-    perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
-    usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
-    produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
-
-    return render_template('dashboard.html', titulo='Sistema de Gestão',
-                           total_perfis=perfis['total'],
-                           total_usuarios=usuarios['total'],
-                           total_produtos=produtos['total'])
-
-@app.route('/cadastros', methods=['GET', 'POST'])
-def cadastros ():
-    return render_template ('usuarios/cadastros.html')
-
-@app.route('/listagem', methods=['GET', 'POST'])
-def listagem ():
-    return render_template ('usuarios/listagem.html')
-
-@app.route('/perfis')
-def listar_perfis():
-    # Busca a lista de perfis na tabela do banco
-    perfis = execute_query(
-        'SELECT id_perfil, nome, descricao, criado_em FROM perfis ORDER BY nome',
-        fetch=True,
-    )
-
-    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
-
-@app.route('/perfis/inserir', methods=['GET', 'POST'])
-def inserir_perfil():
-    # Inicializa variáveis para cada campo do formulário
-    nome = ''
-    descricao = ''
-
-    # Executado apenas no envio do formulário (POST)
-    if request.method == 'POST':
-        # 1. Coleta os dados do formulário
-        nome = request.form.get('nome', '').strip()
-
-        # 'or None' garante que string vazia vire None (gravado como NULL no MySQL)
-        descricao = request.form.get('descricao', '').strip() or None
-
-        # -------------------------------------------------------------------------
-        # 2. Validação dos campos
-        erros = validar_perfil(nome, descricao)
-
-        # 3. Se houver erros, exibe as mensagens
-        if erros:
-            for mensagem in erros:
-                flash(mensagem, 'danger')
-
-        # -------------------------------------------------------------------------
-        # 4. Se não houver erros, tenta salvar no banco
-        else:
-            try:
-                novo_id = execute_insert(
-                    'INSERT INTO perfis (nome, descricao) VALUES (%s, %s)',
-                    (nome, descricao),
-                )
-
-                flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('listar_perfis'))
-
-            # Trata concorrência (duplicidade no momento do insert)
-            except Error as erro:
-                if erro.errno == 1062:
-                    flash('Já existe um perfil com este nome.', 'danger')
-                else:
-                    # Com o raise: Se o MySQL cair, o cabo de rede desconectar ou houver um erro de
-                    # sintaxe no SQL, o Python interrompe a execução imediatamente e mostra o
-                    # Traceback com o erro real no console/log.
-                    raise
-
-    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
-    return render_template('perfis/perfil_form.html', acao='criar', id_perfil=None,
-                           nome=nome, descricao=descricao)
-
-@app.route('/perfis/<int:id_perfil>/editar', methods=['GET', 'POST'])
-def editar_perfil(id_perfil):
-    # Busca o perfil pelo código que veio no endereço
-    perfil = execute_one(
-        'SELECT id_perfil, nome, descricao FROM perfis WHERE id_perfil = %s',
-        (id_perfil,),
-    )
-
-    # Código que não existe: mostra a página 404
-    if perfil is None:
-        abort(404)
-
-    # O formulário começa com os valores que estão no banco
-    nome = perfil['nome']
-    descricao = perfil['descricao']
-
-    # Executado apenas no envio do formulário (POST)
-    if request.method == 'POST':
-        # 1. Coleta os dados do formulário
-        nome = request.form.get('nome', '').strip()
-        descricao = request.form.get('descricao', '').strip() or None
-
-        # -------------------------------------------------------------------------
-        # 2. Validação dos campos (o id_perfil faz o próprio perfil não contar como repetido)
-        erros = validar_perfil(nome, descricao, id_perfil)
-
-        # 3. Se houver erros, exibe as mensagens
-        if erros:
-            for mensagem in erros:
-                flash(mensagem, 'danger')
-
-        # -------------------------------------------------------------------------
-        # 4. Se não houver erros, tenta salvar no banco
-        else:
-            try:
-                # O WHERE garante que só este perfil seja alterado
-                execute_query(
-                    'UPDATE perfis SET '
-                    '    nome = %s, '
-                    '    descricao = %s '
-                    'WHERE id_perfil = %s',
-                    (nome, descricao, id_perfil),
-                )
-
-                flash(f'Perfil "{nome}" atualizado.', 'success')
-                return redirect(url_for('listar_perfis'))
-
-            # Trata concorrência (duplicidade no momento do update)
-            except Error as erro:
-                if erro.errno == 1062:
-                    flash('Já existe um perfil com este nome.', 'danger')
-                else:
-                    raise
-
-    # Exibe a tela em caso de GET ou se houver erros (de validação ou de nome repetido)
-    return render_template('perfis/perfil_form.html', acao='editar', id_perfil=id_perfil,
-                           nome=nome, descricao=descricao)
-
-@app.route('/perfis/<int:id_perfil>/excluir', methods=['POST'])
-def excluir_perfil(id_perfil):
-    # Busca o perfil: confirma que ele existe e traz o nome para a mensagem
-    perfil = execute_one(
-        'SELECT id_perfil, nome FROM perfis WHERE id_perfil = %s',
-        (id_perfil,),
-    )
-
-    # Código que não existe: mostra a página 404
-    if perfil is None:
-        abort(404)
-
-    # Conta os usuários do perfil: um perfil em uso não pode ser excluído
-    usuarios = execute_one(
-        'SELECT COUNT(*) AS total FROM usuarios WHERE perfil_id = %s',
-        (id_perfil,),
-    )
-
-    if usuarios['total'] > 0:
-        flash(f'O perfil "{perfil["nome"]}" tem {usuarios["total"]} usuário(s) e não pode ser excluído.', 'danger')
-        return redirect(url_for('listar_perfis'))
-
-    try:
-        # O WHERE garante que só este perfil seja excluído
-        execute_query('DELETE FROM perfis WHERE id_perfil = %s', (id_perfil,))
-        flash(f'Perfil "{perfil["nome"]}" excluído.', 'success')
-
-    # Trata concorrência (um usuário cadastrado no perfil entre a contagem e o DELETE)
-    except Error as erro:
-        if erro.errno == 1451:
-            flash(f'O perfil "{perfil["nome"]}" está em uso e não pode ser excluído.', 'danger')
-        else:
-            raise
-
-    return redirect(url_for('listar_perfis'))
-
-import os
 import uuid
 
 from dotenv import load_dotenv
@@ -324,7 +130,7 @@ def login():
         # A mesma mensagem para e-mail inexistente e senha errada
         flash('E-mail ou senha incorretos.', 'danger')
 
-    return render_template('login.html', email=email)
+    return render_template('login.html', email='')
 
 
 @app.route('/logout', methods=['POST'])
@@ -346,7 +152,7 @@ def dashboard():
     usuarios = execute_one('SELECT COUNT(*) AS total FROM usuarios')
     produtos = execute_one('SELECT COUNT(*) AS total FROM produtos')
 
-    return render_template('dashboard.html', titulo='Sistema de Gestão',
+    return render_template('dashboard.html', titulo='Tem de Tudo - Loja de Instrumentos',
                            total_perfis=perfis['total'],
                            total_usuarios=usuarios['total'],
                            total_produtos=produtos['total'])
@@ -368,7 +174,7 @@ def listar_perfis():
         fetch=True,
     )
 
-    return render_template('perfis/perfis_lista.html', titulo='Perfis', perfis=perfis)
+    return render_template('perfis/perfil_lista.html', titulo='Perfis', perfis=perfis)
 
 
 @app.route('/perfis/inserir', methods=['GET', 'POST'])
@@ -408,7 +214,7 @@ def inserir_perfil():
                 )
 
                 flash(f'Perfil "{nome}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('listar_perfis'))
+                return redirect(url_for('perfil_lista'))
 
             # Trata concorrência (duplicidade no momento do insert)
             except Error as erro:
@@ -474,7 +280,7 @@ def editar_perfil(id_perfil):
                 )
 
                 flash(f'Perfil "{nome}" atualizado.', 'success')
-                return redirect(url_for('listar_perfis'))
+                return redirect(url_for('perfil_lista'))
 
             # Trata concorrência (duplicidade no momento do update)
             except Error as erro:
@@ -526,7 +332,7 @@ def excluir_perfil(id_perfil):
         else:
             raise
 
-    return redirect(url_for('listar_perfis'))
+    return redirect(url_for('perfil_lista'))
 
 
 # ==============================================================================
@@ -542,7 +348,7 @@ def listar_usuarios():
     # O SELECT_USUARIO já traz o nome do perfil, pelo JOIN
     usuarios = execute_query(SELECT_USUARIO + ' ORDER BY u.nome', fetch=True)
 
-    return render_template('usuarios/usuarios_lista.html', titulo='Usuários', usuarios=usuarios)
+    return render_template('usuarios/usuario_lista.html', titulo='Usuários', usuarios=usuarios)
 
 
 @app.route('/usuarios/inserir', methods=['GET', 'POST'])
@@ -603,7 +409,7 @@ def inserir_usuario():
                 )
 
                 flash(f'Usuário "{dados["nome"]}" cadastrado (código {novo_id}).', 'success')
-                return redirect(url_for('listar_usuarios'))
+                return redirect(url_for('usuario_lista'))
 
             # Duas colunas UNIQUE: o 1062 pode ser do e-mail ou do CPF
             except Error as erro:
@@ -737,7 +543,7 @@ def excluir_usuario(id_usuario):
     # Quem está logado não pode excluir a si mesmo
     if id_usuario == session['id_usuario']:
         flash('Você não pode excluir o seu próprio usuário.', 'danger')
-        return redirect(url_for('listar_usuarios'))
+        return redirect(url_for('usuario_lista'))
 
     usuario = execute_one(
         'SELECT id_usuario, nome FROM usuarios WHERE id_usuario = %s',
@@ -751,7 +557,7 @@ def excluir_usuario(id_usuario):
     execute_query('DELETE FROM usuarios WHERE id_usuario = %s', (id_usuario,))
     flash(f'Usuário "{usuario["nome"]}" excluído.', 'success')
 
-    return redirect(url_for('listar_usuarios'))
+    return redirect(url_for('usuario_lista'))
 
 
 # ==============================================================================
@@ -844,7 +650,7 @@ def inserir_produto():
             flash(f'Produto "{dados["nome"]}" cadastrado (código {novo_id}).', 'success')
             return redirect(url_for('listar_produtos'))
 
-    return render_template('produtos/produto_form.html', acao='criar', id_produto=None, dados=dados,
+    return render_template('produtos/produtos_form.html', acao='criar', id_produto=None, dados=dados,
                            categorias=CATEGORIAS, foto_atual=None)
 
 
@@ -930,7 +736,7 @@ def editar_produto(id_produto):
             flash(f'Produto "{dados["nome"]}" atualizado.', 'success')
             return redirect(url_for('listar_produtos'))
 
-    return render_template('produtos/produto_form.html', acao='editar', id_produto=id_produto, dados=dados,
+    return render_template('produtos/produtos_form.html', acao='editar', id_produto=id_produto, dados=dados,
                            categorias=CATEGORIAS, foto_atual=produto['foto'])
 
 
@@ -955,7 +761,7 @@ def excluir_produto(id_produto):
     apagar_foto(produto['foto'])
     flash(f'Produto "{produto["nome"]}" excluído.', 'success')
 
-    return redirect(url_for('listar_produtos'))
+    return redirect(url_for('produtos_lista'))
 
 
 # ==============================================================================

@@ -1,6 +1,6 @@
-{% extends 'layout/base_menu.html' %}
+{% extends 'layouts/base_menu.html' %}
 
-{% block titulo_aba %}{{ 'Editar produto' if acao == 'editar' else 'Novo produto' }} — Sistema de Gestão{% endblock %}
+{% block titulo_aba %}{{ 'Editar produto' if acao == 'editar' else 'Novo produto' }}Tem de Tudo - Cadastrar Produto{% endblock %}
 
 {% block conteudo %}
   {% if acao == 'editar' %}
