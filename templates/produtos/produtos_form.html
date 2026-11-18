@@ -21,7 +21,7 @@
 
             <div class="mb-3">
               <label for="nome" class="form-label">Nome do produto</label>
-              <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Mouse sem fio" value="{{ dados.nome }}" required minlength="3" maxlength="255">
+              <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex.: Guitarra elétrica" value="{{ dados.nome }}" required minlength="3" maxlength="255">
             </div>
 
             <div class="mb-3">
@@ -67,14 +67,9 @@
               <div class="form-text">Arquivo jpg, jpeg, png ou webp, com até 2 MB.</div>
             </div>
 
-            <div class="form-check form-switch mb-4">
-              <input class="form-check-input" type="checkbox" role="switch" id="ativo" name="ativo" value="1" {% if dados.ativo == 1 %}checked{% endif %}>
-              <label class="form-check-label" for="ativo">Produto ativo</label>
-            </div>
-
             <div class="d-flex justify-content-between gap-2">
-              <a href="{{ url_for('produtos_lista') }}" class="btn btn-outline-secondary">Cancelar</a>
-              <button type="submit" class="btn btn-primary">{{ 'Salvar alterações' if acao == 'editar' else 'Salvar produto' }}</button>
+              <a href="{{ url_for('produtos_lista') }}" class="btn btn-dark">Cancelar</a>
+              <button type="submit" class="btn btn-dark">{{ 'Salvar alterações' if acao == 'editar' else 'Salvar produto' }}</button>
             </div>
 
           </form>

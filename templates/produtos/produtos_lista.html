@@ -5,7 +5,7 @@
 {% block conteudo %}
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ titulo }}</h1>
-    <a href="{{ url_for('inserir_produto') }}" class="btn btn-primary">Novo produto</a>
+    <a href="{{ url_for('inserir_produto') }}" class="btn btn-dark">Novo produto</a>
   </div>
 
   <table class="table table-striped table-hover align-middle">
@@ -38,28 +38,28 @@
         <td>{{ produto.preco|moeda }}</td>
         <td>
           {% if produto.estoque == 0 %}
-            <span class="badge text-bg-danger">Sem estoque</span>
+            <span class="badge text-bg-dark">Sem estoque</span>
           {% elif produto.estoque < 5 %}
-            <span class="badge text-bg-warning">Estoque baixo ({{ produto.estoque }})</span>
+            <span class="badge text-bg-dark">Estoque baixo ({{ produto.estoque }})</span>
           {% else %}
-            <span class="badge text-bg-success">Em estoque ({{ produto.estoque }})</span>
+            <span class="badge text-bg-dark">Em estoque ({{ produto.estoque }})</span>
           {% endif %}
         </td>
         <td>
           {% if produto.ativo %}
-            <span class="badge text-bg-primary">Ativo</span>
+            <span class="badge text-bg-dark">Ativo</span>
           {% else %}
-            <span class="badge text-bg-secondary">Inativo</span>
+            <span class="badge text-bg-dark">Inativo</span>
           {% endif %}
         </td>
         <td class="text-end text-nowrap">
-          <a href="{{ url_for('editar_produto', id_produto=produto.id_produto) }}" class="btn btn-sm btn-warning" title="Editar"><i class="bi bi-pencil-square"></i></a>
-          <button type="button" class="btn btn-sm btn-danger" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao( produto.id_produto )"><i class="bi bi-trash"></i></button>
+          <a href="{{ url_for('editar_produto', id_produto=produto.id_produto) }}" class="btn btn-sm btn-dark" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <button type="button" class="btn btn-sm btn-dark" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao( produto.id_produto )"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
       {% else %}
       <tr>
-        <td colspan="7" class="text-center text-body-secondary py-4">Nenhum produto cadastrado ainda.</td>
+        <td colspan="7" class="text-center text-body-dark py-4">Nenhum produto cadastrado ainda.</td>
       </tr>
       {% endfor %}
     </tbody>
@@ -78,8 +78,8 @@
             <p class="mb-0">Excluir o produto <strong id="nomeExcluir"></strong>? Esta ação não pode ser desfeita.</p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-danger">Excluir</button>
+            <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn btn-dark">Excluir</button>
           </div>
         </form>
       </div>
