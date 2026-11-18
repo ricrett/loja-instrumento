@@ -701,7 +701,7 @@ def editar_produto(id_produto):
                 apagar_foto(produto['foto'])
 
             flash(f'Produto "{dados["nome"]}" atualizado.', 'success')
-            return redirect(url_for('listar_produtos'))
+            return redirect(url_for('produtos_lista'))
 
     return render_template('produtos/produtos_form.html', acao='editar', id_produto=id_produto, dados=dados,
                            categorias=CATEGORIAS, foto_atual=produto['foto'])

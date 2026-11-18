@@ -3,7 +3,14 @@
 {% block titulo_aba %}Tem de Tudo - Cadastrar Usuário{% endblock %}
 
 {% block conteudo %}
-  <h1 class="h2 mb-4">Novo usuário</h1>
+
+  {% if acao == 'editar' %}
+    {% set destino = url_for('editar_usuario', id_usuario=id_usuario) %}
+  {% else %}
+    {% set destino = url_for('inserir_usuario') %}
+  {% endif %}
+
+  <h1 class="h2 mb-4">{{ 'Editar usuário' if acao == 'editar' else 'Novo usuário' }}</h1>
 
   <div class="row justify-content-center">
     <div class="col-lg-8">

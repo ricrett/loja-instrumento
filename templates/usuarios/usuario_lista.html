@@ -34,7 +34,7 @@
         <td>{% include 'usuarios/badge_perfil.html' %}</td>
         <td class="text-end text-nowrap">
           <a href="{{ url_for('detalhar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-dark" title="Ver detalhes"><i class="bi bi-eye"></i></a>
-          <a href="#" class="btn btn-sm btn-dark" title="Editar"><i class="bi bi-pencil-square"></i></a>
+          <a href="{{ url_for('editar_usuario', id_usuario=usuario.id_usuario) }}" class="btn btn-sm btn-dark" title="Editar"><i class="bi bi-pencil-square"></i></a>
           <button type="button" class="btn btn-sm btn-dark" title="Excluir"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
