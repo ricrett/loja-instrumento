@@ -3,7 +3,7 @@ from decimal import Decimal
 from werkzeug.utils import secure_filename
 
 # Categorias de produto aceitas pelo sistema: o formulário e a validação leem a mesma lista
-CATEGORIAS = ['Informática', 'Periféricos', 'Áudio', 'Acessórios', 'Outros']
+CATEGORIAS = ['Instrumentos', 'Acessórios', 'Discos', 'Outros']
 
 # Limite da coluna estoque
 ESTOQUE_MAXIMO = 1000000
