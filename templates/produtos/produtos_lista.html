@@ -54,7 +54,7 @@
         </td>
         <td class="text-end text-nowrap">
           <a href="{{ url_for('editar_produto', id_produto=produto.id_produto) }}" class="btn btn-sm btn-dark" title="Editar"><i class="bi bi-pencil-square"></i></a>
-          <button type="button" class="btn btn-sm btn-dark" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao( produto.id_produto )"><i class="bi bi-trash"></i></button>
+          <button type="button" class="btn btn-sm btn-dark" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao({{ produto.id_produto }})"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
       {% else %}
