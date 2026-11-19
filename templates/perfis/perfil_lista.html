@@ -27,7 +27,7 @@
         <td>{{ perfil.criado_em.strftime('%d/%m/%Y %H:%M') }}</td>
         <td class="text-end text-nowrap">
           <a href="{{ url_for('editar_perfil', id_perfil=perfil.id_perfil) }}" class="btn btn-sm btn-dark" title="Editar"><i class="bi bi-pencil-square"></i></a>
-          <button type="button" class="btn btn-sm btn-dark" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao( perfil.id_perfil )"><i class="bi bi-trash"></i></button>
+          <button type="button" class="btn btn-sm btn-dark" title="Excluir" data-bs-toggle="modal" data-bs-target="#modalExcluir" onclick="prepararExclusao (perfil.id_perfil)"><i class="bi bi-trash"></i></button>
         </td>
       </tr>
       {% else %}
@@ -51,21 +51,21 @@
           <p class="mb-0">Excluir o perfil <strong id="nomeExcluir"></strong>? Esta ação não pode ser desfeita.</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Cancelar</button>
           <button type="submit" class="btn btn-dark">Excluir</button>
         </div>
       </form>
     </div>
   </div>
-</div>
+  </div>
 {% endblock %}
 
 {% block scripts %}
-<script>
+ <script>
   function prepararExclusao(id) {
     const nome = document.getElementById('nome_perfil_' + id).textContent;
     document.getElementById('nomeExcluir').textContent = nome;
     document.getElementById('formExcluir').action = '/perfis/' + id + '/excluir';
   }
-</script>
+ </script>
 {% endblock %}
