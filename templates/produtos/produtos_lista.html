@@ -3,6 +3,7 @@
 {% block titulo_aba %}{{ titulo }}Tem de Tudo - Listar Produto{% endblock %}
 
 {% block conteudo %}
+
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="h2 mb-0">{{ titulo }}</h1>
     <a href="{{ url_for('inserir_produto') }}" class="btn btn-dark">Novo produto</a>
@@ -16,7 +17,6 @@
         <th>Nome</th>
         <th>Preço</th>
         <th>Estoque</th>
-        <th>Situação</th>
         <th class="text-end">Ações</th>
       </tr>
     </thead>
@@ -43,13 +43,6 @@
             <span class="badge text-bg-dark">Estoque baixo ({{ produto.estoque }})</span>
           {% else %}
             <span class="badge text-bg-dark">Em estoque ({{ produto.estoque }})</span>
-          {% endif %}
-        </td>
-        <td>
-          {% if produto.ativo %}
-            <span class="badge text-bg-dark">Ativo</span>
-          {% else %}
-            <span class="badge text-bg-dark">Inativo</span>
           {% endif %}
         </td>
         <td class="text-end text-nowrap">

@@ -143,6 +143,9 @@ def logout():
 
 @app.route('/dashboard')
 def dashboard():
+    if 'id_usuario' not in session:
+        flash('Entre para continuar.', 'warning')
+        return redirect(url_for('login'))
 
     # Conta as linhas de cada tabela para os cartões da Home
     perfis = execute_one('SELECT COUNT(*) AS total FROM perfis')
@@ -617,7 +620,7 @@ def inserir_produto():
             )
 
             flash(f'Produto "{dados["nome"]}" cadastrado (código {novo_id}).', 'success')
-            return redirect(url_for('listar_produtos'))
+            return redirect(url_for('produtos_lista'))
 
     return render_template('produtos/produtos_form.html', acao='criar', id_produto=None, dados=dados,
                            categorias=CATEGORIAS, foto_atual=None)
@@ -740,16 +743,6 @@ def pagina_nao_encontrada(erro):
 @app.errorhandler(413)
 def arquivo_grande_demais(erro):
     return render_template('413.html'), 413
-
-
-@app.errorhandler(500)
-def erro_no_servidor(erro):
-    return render_template('500.html'), 500
-
-
-@app.errorhandler(404)
-def pagina_nao_encontrada(erro):
-    return render_template('404.html'), 404
 
 
 @app.errorhandler(500)
